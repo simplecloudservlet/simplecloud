@@ -69,7 +69,7 @@ public class SAXParserCloud {
 	}//fim setTokenID
 
 	//Apenas para testes
-	boolean ARQUIVO_HOSTS_FIXO=true;
+	boolean ARQUIVO_HOSTS_FIXO=false;
 	boolean ARQUIVO_SERVERS_FIXO=true;
 
 	//Construtor
@@ -80,7 +80,7 @@ public class SAXParserCloud {
 			//Busca pela tag <host ... /> no arquivo XML
 			//
 			//Uso uma lista porque nao sei quantos hosts podem ser retornados
-			java.util.ArrayList listaHosts = processar("getHosts", "");
+			java.util.ArrayList listaHosts = processar("getHosts", "src/simplecloud/simplecloud/hosts.xml"); //
 			java.util.Iterator itr = listaHosts.iterator();
 			while(itr.hasNext()){
 				Object element = itr.next();
@@ -92,11 +92,11 @@ public class SAXParserCloud {
 			//Busca pela tag <host ... /> no arquivo XML
 			//
 			//Uso uma lista porque nao sei quantos hosts podem ser retornados
-			java.util.ArrayList listaHosts = processar("getHosts", "");
-			java.util.Iterator itr = listaHosts.iterator();
+			java.util.ArrayList listaServers = processar("getServers", "src/simplecloud/simplecloud/servers.xml");
+			java.util.Iterator itr = listaServers.iterator();
 			while(itr.hasNext()){
 				Object element = itr.next();
-				System.out.print(element + " ");			
+				System.out.print(element + " - ");			
 			}//fim while
 		}//fim if
 
@@ -104,10 +104,7 @@ public class SAXParserCloud {
 
 	public java.util.ArrayList processar(String tipo, String arquivo){
 
-		java.util.ArrayList listaHosts = new java.util.ArrayList();
-
-		java.util.ArrayList listaServers = new java.util.ArrayList();
-
+		java.util.ArrayList lista = new java.util.ArrayList();
 
 		try {
 			SAXParserFactory parserFactor = SAXParserFactory.newInstance();
@@ -116,11 +113,11 @@ public class SAXParserCloud {
 			//Apenas para testes			
 			if(ARQUIVO_HOSTS_FIXO){
 				System.out.println("[[["+arquivo+"]]]");//Como processar o xml que estah na memoria???
-				parser.parse(new File("src/simplecloud/simplecloud/hosts.xml"), handler);
+				parser.parse(new File(arquivo), handler);
 			} else 
 				if(ARQUIVO_SERVERS_FIXO){
 					System.out.println("[[["+arquivo+"]]]");//Como processar o xml que estah na memoria???
-					parser.parse(new File("src/simplecloud/simplecloud/servers.xml"), handler);
+					parser.parse(new File(arquivo), handler);
 				} else {
 					// convert String into InputStream
 					InputStream is = new ByteArrayInputStream(arquivo.getBytes());
@@ -133,12 +130,13 @@ public class SAXParserCloud {
 					//Armazena apenas os objetos cujo hosts sao do tipo 'compute'
 					if(doc.service.equals("compute")){
 						System.out.println(doc.host_name);
-						listaHosts.add(doc.host_name);
+						lista.add(doc.host_name);
 					}//fim if
 
 				}//fim if
 				else if(tipo.equals("getServers")){
-					listaServers.add(doc);
+					System.out.println("Passei por aqui2: doc.server_id: "+doc.server_id);
+					lista.add(doc.server_id);
 
 				}//fimIfServers
 
@@ -147,7 +145,7 @@ public class SAXParserCloud {
 			e.printStackTrace();
 		}
 
-		return listaHosts;
+		return lista;
 
 	}//fim processar
 
@@ -225,9 +223,11 @@ public class SAXParserCloud {
 					if(tipo.equals("getServers")){ //tipo
 						switch(qName){ //tag atual. Ex.: <server...>
 						case "server":
+							System.out.println("Passei por aqui");
 							doc = new Tag();//Cria um novo objeto para guardar o valor
 							doc.server_id = attributes.getValue("id");
 							doc.server_name = attributes.getValue("name");
+							System.out.println("doc.server_id: " + doc.server_id);
 							break;
 						default:
 							break;
@@ -240,7 +240,8 @@ public class SAXParserCloud {
 		@Override
 		public void endElement(String uri, String localName, 
 				String qName) throws SAXException {
-			String tipo = getTipo();
+
+			//String tipo = getTipo();
 
 			docList.add(doc);
 		}//fim endElement
