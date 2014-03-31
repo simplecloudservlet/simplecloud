@@ -46,102 +46,103 @@ import simplecloud.HTMLFilter;
 
 public class SimpleCloudServlet extends HttpServlet {
 
-    private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-    @Override
-    public void doGet(HttpServletRequest request,
-                      HttpServletResponse response)
-        throws IOException, ServletException
-    {
-        response.setContentType("text/html");
-        
-    	
-    	
-        PrintWriter out = response.getWriter();
-        
-        String username = request.getParameter("username");
-        String password = request.getParameter("password");
-        String ip = request.getParameter("ip");
-        String token = request.getParameter("token");
-        String tenant = request.getParameter("tenant");
-        String tipo = request.getParameter("tipo");
-        
-         
-        if(tipo.equals("getHosts")){
-        	ArrayList retornoHosts = new ArrayList();
-        	 try {
-             	
-             	//out.print(processar(username,password));
-             	retornoHosts=getHosts(username,password,ip,token,tenant);
-             	
-     		} catch (Exception e){
-     			out.println("<h3>" + e.getMessage() + "</h3>");
-     		}        
-             
-             String urlHosts = "";
-             
-             java.util.Iterator itr = retornoHosts.iterator();
-     		while(itr.hasNext()){
-     			Object element = itr.next();
-     			urlHosts +=  element + ";";
-     		}//fim while
-             
-     		
-     		response.sendRedirect("index.jsp?username="+username+"&password="+password+"&token="+token+"&ip="+ip+"&tenant="+tenant+
-             		"&hosts="+urlHosts);
-             
-        }//finalComparacaoHosts 
-        
-       else if(tipo.equals("getServers")){
-    	 ArrayList retornoServers = new ArrayList();
-    	 try {
-          	
-          	//out.print(processar(username,password));
-          	
-          	retornoServers=getServers(username,password,ip,token,tenant);
-          	
-  		} catch (Exception e){
-  			out.println("<h3>" + e.getMessage() + "</h3>");
-  		}        
-          
-          String urlServers = "";
-          
-          java.util.Iterator itr = retornoServers.iterator();
-          SAXParserCloud obj = new SAXParserCloud();
-          
-  		while(itr.hasNext()){
-  			SAXParserCloud.Tag element =  (SAXParserCloud.Tag) itr.next();
-  			urlServers +=  element.server_name + ";";
-  		}//fim while
-          
-  		 
-  		out.println("<html>");
-        out.println("<head>");
+	@Override
+	public void doGet(HttpServletRequest request,
+			HttpServletResponse response)
+					throws IOException, ServletException
+					{
+		response.setContentType("text/html");
 
-        
-        out.println("</head>");
-        out.println("<body bgcolor=\"white\">");
-        out.println(username);
-        out.println(urlServers);
-        out.println("</body>");
-        out.println("</html>");
-  		/*response.sendRedirect("index.jsp?username="+username+"&password="+password+"&token="+token+"&ip="+ip+"&tenant="+tenant+
+
+
+		PrintWriter out = response.getWriter();
+
+		String username = request.getParameter("username");
+		String password = request.getParameter("password");
+		String ip = request.getParameter("ip");
+		String token = request.getParameter("token");
+		String tenant = request.getParameter("tenant");
+		String tipo = request.getParameter("tipo");
+
+
+		if(tipo.equals("getHosts")){
+			ArrayList retornoHosts = new ArrayList();
+			try {
+
+				//out.print(processar(username,password));
+				retornoHosts=getHosts(username,password,ip,token,tenant);
+
+			} catch (Exception e){
+				out.println("<h3>" + e.getMessage() + "</h3>");
+			}        
+
+			String urlHosts = "";
+
+			java.util.Iterator itr = retornoHosts.iterator();
+			while(itr.hasNext()){
+				Object element = itr.next();
+				urlHosts +=  element + ";";
+			}//fim while
+
+
+			response.sendRedirect("index.jsp?username="+username+"&password="+password+"&token="+token+"&ip="+ip+"&tenant="+tenant+
+					"&hosts="+urlHosts);
+
+		}//finalComparacaoHosts 
+
+		else if(tipo.equals("getServers")){
+			ArrayList retornoServers = new ArrayList();
+			try {
+
+				//out.print(processar(username,password));
+
+				retornoServers=getServers(username,password,ip,token,tenant);
+
+			} catch (Exception e){
+				out.println("<h3>" + e.getMessage() + "</h3>");
+			}        
+
+			String urlServers = "";
+
+			java.util.Iterator itr = retornoServers.iterator();
+			//SAXParserCloud obj = new SAXParserCloud();
+
+			while(itr.hasNext()){
+				Object element = itr.next();
+				urlServers +=  "element.server_name" + ";";
+				out.println("["+urlServers+"]");
+			}//fim while
+
+
+			out.println("<html>");
+			out.println("<head>");
+
+
+			out.println("</head>");
+			out.println("<body bgcolor=\"white\">");
+			out.println(username);
+			out.println("["+urlServers+"]");
+			out.println("</body>");
+			out.println("</html>");
+			/*response.sendRedirect("index.jsp?username="+username+"&password="+password+"&token="+token+"&ip="+ip+"&tenant="+tenant+
           		"&servers="+urlServers);*/
-        }//finalComparacaoServers
-        
-  		
-        
-        
-    }
+		}//finalComparacaoServers
 
-    /////////////
+
+
+
+					}
+
+	/////////////
 	public String[] getToken(String username, String password, String ip) throws Exception{
 
 		String[] result=new String[4];
 		for(int i=0; i<result.length; i++){
-    		result[i]="";
-    	}
-		
+			result[i]="";
+		}
+
 		CloseableHttpClient httpclient = HttpClients.createDefault();
 		try {
 
@@ -167,13 +168,13 @@ public class SimpleCloudServlet extends HttpServlet {
 
 			HttpPost httppost = new HttpPost(url.toURI());
 
-			
+
 			InputStreamEntity reqEntity=null;
-			
-				String entrada = "{\"auth\": {\"tenantName\": \""+username+"\",\"passwordCredentials\": {\"username\": \""+username+"\", \"password\": \""+password+"\"}}}"; 
-				InputStream saida = new ByteArrayInputStream(entrada.getBytes());
-				reqEntity = new InputStreamEntity(
-						saida, -1, ContentType.APPLICATION_JSON);			
+
+			String entrada = "{\"auth\": {\"tenantName\": \""+username+"\",\"passwordCredentials\": {\"username\": \""+username+"\", \"password\": \""+password+"\"}}}"; 
+			InputStream saida = new ByteArrayInputStream(entrada.getBytes());
+			reqEntity = new InputStreamEntity(
+					saida, -1, ContentType.APPLICATION_JSON);			
 
 			reqEntity.setChunked(true);
 			httppost.setEntity(reqEntity);			
@@ -217,21 +218,21 @@ public class SimpleCloudServlet extends HttpServlet {
 			sax.processar("getToken",responseBody.toString());
 			result[0] = sax.getTokenID();
 			result[1] = sax.getTenantID();
-			
-			
-			
+
+
+
 		} finally {
 			httpclient.close();
 		}
 
 		return result;
 	}
-	
+
 	public java.util.ArrayList getHosts(String username, String password, String ip, String token, String tenant) throws Exception{
 
 		java.util.ArrayList listaHosts = new java.util.ArrayList();
-		
-		
+
+
 		CloseableHttpClient httpclient = HttpClients.createDefault();
 		try {
 
@@ -257,50 +258,50 @@ public class SimpleCloudServlet extends HttpServlet {
 
 			HttpGet httpget = new HttpGet(url.toURI());
 
-			
-            httpget.setHeader("X-Auth-Token",token); 
-            httpget.addHeader("Accept", "application/xml");
-            
-            System.out.println("Executing request: " + httpget.getRequestLine());
-            
-            //------------
-            // Create a custom response handler
-            ResponseHandler<String> responseHandler = new ResponseHandler<String>() {
 
-                public String handleResponse(
-                        final HttpResponse response) throws ClientProtocolException, IOException {
-                    int status = response.getStatusLine().getStatusCode();
-                    if (status >= 200 && status < 300) {
-                        HttpEntity entity = response.getEntity();
-                        return entity != null ? EntityUtils.toString(entity) : null;
-                    } else {
-                        throw new ClientProtocolException("Unexpected response status: " + status);
-                    }
-                }
+			httpget.setHeader("X-Auth-Token",token); 
+			httpget.addHeader("Accept", "application/xml");
 
-            };
-            String responseBody = httpclient.execute(httpget, responseHandler);
-                    
-	
-            
+			System.out.println("Executing request: " + httpget.getRequestLine());
+
+			//------------
+			// Create a custom response handler
+			ResponseHandler<String> responseHandler = new ResponseHandler<String>() {
+
+				public String handleResponse(
+						final HttpResponse response) throws ClientProtocolException, IOException {
+					int status = response.getStatusLine().getStatusCode();
+					if (status >= 200 && status < 300) {
+						HttpEntity entity = response.getEntity();
+						return entity != null ? EntityUtils.toString(entity) : null;
+					} else {
+						throw new ClientProtocolException("Unexpected response status: " + status);
+					}
+				}
+
+			};
+			String responseBody = httpclient.execute(httpget, responseHandler);
+
+
+
 			SAXParserCloud sax = new SAXParserCloud();
 			listaHosts =sax.processar ("getHosts",responseBody.toString());
-		
-			
-			
-			
-			
+
+
+
+
+
 		} finally {
 			httpclient.close();
 		}
 
 		return listaHosts;
 	}
-	
+
 	public java.util.ArrayList getServers(String username, String password, String ip, String token, String tenant) throws Exception{
 
 		java.util.ArrayList listaServers = new java.util.ArrayList();
-		
+
 		CloseableHttpClient httpclient = HttpClients.createDefault();
 		try {
 
@@ -326,83 +327,83 @@ public class SimpleCloudServlet extends HttpServlet {
 
 			HttpGet httpget = new HttpGet(url.toURI());
 
-			
-            httpget.setHeader("X-Auth-Token",token); 
-            httpget.addHeader("Accept", "application/xml");
-            
-            System.out.println("Executing request: " + httpget.getRequestLine());
-            
-            //------------
-            // Create a custom response handler
-            ResponseHandler<String> responseHandler = new ResponseHandler<String>() {
 
-                public String handleResponse(
-                        final HttpResponse response) throws ClientProtocolException, IOException {
-                    int status = response.getStatusLine().getStatusCode();
-                    if (status >= 200 && status < 300) {
-                        HttpEntity entity = response.getEntity();
-                        return entity != null ? EntityUtils.toString(entity) : null;
-                    } else {
-                        throw new ClientProtocolException("Unexpected response status: " + status);
-                    }
-                }
+			httpget.setHeader("X-Auth-Token",token); 
+			httpget.addHeader("Accept", "application/xml");
 
-            };
-            String responseBody = httpclient.execute(httpget, responseHandler);
-                    
-	
+			System.out.println("Executing request: " + httpget.getRequestLine());
 
-            SAXParserCloud sax = new SAXParserCloud();
+			//------------
+			// Create a custom response handler
+			ResponseHandler<String> responseHandler = new ResponseHandler<String>() {
+
+				public String handleResponse(
+						final HttpResponse response) throws ClientProtocolException, IOException {
+					int status = response.getStatusLine().getStatusCode();
+					if (status >= 200 && status < 300) {
+						HttpEntity entity = response.getEntity();
+						return entity != null ? EntityUtils.toString(entity) : null;
+					} else {
+						throw new ClientProtocolException("Unexpected response status: " + status);
+					}
+				}
+
+			};
+			String responseBody = httpclient.execute(httpget, responseHandler);
+
+
+
+			SAXParserCloud sax = new SAXParserCloud();
 			listaServers =sax.processar ("getHosts",responseBody.toString());
-		
-			
-			
+
+
+
 		} finally {
 			httpclient.close();
 		}
 
 		return listaServers;
 	}
-	
-	
-		
-    
-    @Override
-    public void doPost(HttpServletRequest request,
-                      HttpServletResponse response)
-        throws IOException, ServletException
-    {
-    	String title = "Simple Cloud Dashboard";
-    	
-    	response.setContentType("text/html");
-    	
-        PrintWriter out = response.getWriter();
-        
-        String username = request.getParameter("username");
-        String password = request.getParameter("password");
-        String ip = request.getParameter("ip");
-        
-        String []retorno = new String[4];
-    	for(int i=0; i<retorno.length; i++){
-    		retorno[i]="";
-    	}    
-        
-        try {
-        	
-        	//out.print(processar(username,password));
-        	retorno=getToken(username,password,ip);
-        	
+
+
+
+
+	@Override
+	public void doPost(HttpServletRequest request,
+			HttpServletResponse response)
+					throws IOException, ServletException
+					{
+		String title = "Simple Cloud Dashboard";
+
+		response.setContentType("text/html");
+
+		PrintWriter out = response.getWriter();
+
+		String username = request.getParameter("username");
+		String password = request.getParameter("password");
+		String ip = request.getParameter("ip");
+
+		String []retorno = new String[4];
+		for(int i=0; i<retorno.length; i++){
+			retorno[i]="";
+		}    
+
+		try {
+
+			//out.print(processar(username,password));
+			retorno=getToken(username,password,ip);
+
 		} catch (Exception e){
 			out.println("<h3>" + e.getMessage() + "</h3>");
 		}        
-        
-        String token=retorno[0];
-        String tenant=retorno[1];
-        
-        
-        response.sendRedirect("index.jsp?username="+username+"&password="+password+"&token="+token+"&ip="+ip+"&tenant="+tenant);
-        //doGet(request, response);
-    }
-    
-   
+
+		String token=retorno[0];
+		String tenant=retorno[1];
+
+
+		response.sendRedirect("index.jsp?username="+username+"&password="+password+"&token="+token+"&ip="+ip+"&tenant="+tenant);
+		//doGet(request, response);
+					}
+
+
 }

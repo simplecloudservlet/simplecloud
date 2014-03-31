@@ -71,47 +71,42 @@ public class SAXParserCloud {
 	//Construtor
 	public SAXParserCloud(){
 
-		/*String[] result=new String[4];
-		for(int i=0; i<result.length; i++){
-			result[i]="";
-		}
-
-		//Busca pela tag <host ... /> no arquivo XML
-		//
-		//Uso uma lista porque nao sei quantos hosts podem ser retornados
-		java.util.ArrayList listaHosts = processar("getHosts", arquivo);
-		//listaHosts = processar("getHosts");
-		java.util.Iterator itr = listaHosts.iterator();
-		while(itr.hasNext()){
-			Object element = itr.next();
-			System.out.print(element + " ");			
-		}//fim while
-
-		//result[0] = getHostsID();
-		//System.out.println(result[0]);*/
+		boolean arquivo_fixo=true;
+		if(arquivo_fixo){
+			//Busca pela tag <host ... /> no arquivo XML
+			//
+			//Uso uma lista porque nao sei quantos hosts podem ser retornados
+			java.util.ArrayList listaHosts = processar("getHosts", "src/arquivo.xml");
+			java.util.Iterator itr = listaHosts.iterator();
+			while(itr.hasNext()){
+				Object element = itr.next();
+				System.out.print(element + " ");			
+			}//fim while
+		}//fim if
 
 	}//fimdoconstrutor
 
 	public java.util.ArrayList processar(String tipo, String arquivo){
 
-		
-		
-			java.util.ArrayList listaHosts = new java.util.ArrayList();
-		
-		
-		
-			java.util.ArrayList listaServers = new java.util.ArrayList();
-	
+		java.util.ArrayList listaHosts = new java.util.ArrayList();
+
+		java.util.ArrayList listaServers = new java.util.ArrayList();
+
 
 		try {
 			SAXParserFactory parserFactor = SAXParserFactory.newInstance();
 			javax.xml.parsers.SAXParser parser = parserFactor.newSAXParser();
 			SAXHandler handler = new SAXHandler(tipo);
-			//System.out.println("[[["+arquivo+"]]]");//Como processar o xml que estah na memoria???
-			//parser.parse(new File("src/arquivo.xml"), handler);
-			// convert String into InputStream
-			InputStream is = new ByteArrayInputStream(arquivo.getBytes());
-			parser.parse(is, handler);
+			//Apenas para testar com um arquivo fixo
+			boolean arquivo_fixo=true;
+			if(arquivo_fixo){
+				System.out.println("[[["+arquivo+"]]]");//Como processar o xml que estah na memoria???
+				parser.parse(new File("src/simplecloud/simplecloud/arquivo.xml"), handler);
+			} else {
+				// convert String into InputStream
+				InputStream is = new ByteArrayInputStream(arquivo.getBytes());
+				parser.parse(is, handler);
+			}//fim else
 
 			//Printing the list obtained from XML
 			for ( Tag doc : handler.docList){
