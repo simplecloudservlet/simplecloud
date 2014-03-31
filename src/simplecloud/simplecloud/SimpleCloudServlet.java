@@ -55,8 +55,6 @@ public class SimpleCloudServlet extends HttpServlet {
 					{
 		response.setContentType("text/html");
 
-
-
 		PrintWriter out = response.getWriter();
 
 		String username = request.getParameter("username");
@@ -68,6 +66,7 @@ public class SimpleCloudServlet extends HttpServlet {
 
 
 		if(tipo.equals("getHosts")){
+			
 			ArrayList retornoHosts = new ArrayList();
 			try {
 
@@ -214,7 +213,7 @@ public class SimpleCloudServlet extends HttpServlet {
 				e.printStackTrace();
 			}*/			
 
-			SAXParserCloud sax = new SAXParserCloud();
+			SAXParserToken sax = new SAXParserToken();
 			sax.processar("getToken",responseBody.toString());
 			result[0] = sax.getTokenID();
 			result[1] = sax.getTenantID();
@@ -282,14 +281,8 @@ public class SimpleCloudServlet extends HttpServlet {
 			};
 			String responseBody = httpclient.execute(httpget, responseHandler);
 
-
-
-			SAXParserCloud sax = new SAXParserCloud();
+			SAXParserHosts sax = new SAXParserHosts();
 			listaHosts =sax.processar ("getHosts",responseBody.toString());
-
-
-
-
 
 		} finally {
 			httpclient.close();
@@ -351,12 +344,8 @@ public class SimpleCloudServlet extends HttpServlet {
 			};
 			String responseBody = httpclient.execute(httpget, responseHandler);
 
-
-
-			SAXParserCloud sax = new SAXParserCloud();
-			listaServers =sax.processar ("getHosts",responseBody.toString());
-
-
+			SAXParserServers sax = new SAXParserServers();
+			listaServers =sax.processar ("getServers",responseBody.toString());
 
 		} finally {
 			httpclient.close();
@@ -365,14 +354,11 @@ public class SimpleCloudServlet extends HttpServlet {
 		return listaServers;
 	}
 
-
-
-
 	@Override
 	public void doPost(HttpServletRequest request,
 			HttpServletResponse response)
-					throws IOException, ServletException
-					{
+					throws IOException, ServletException {
+
 		String title = "Simple Cloud Dashboard";
 
 		response.setContentType("text/html");
@@ -403,7 +389,7 @@ public class SimpleCloudServlet extends HttpServlet {
 
 		response.sendRedirect("index.jsp?username="+username+"&password="+password+"&token="+token+"&ip="+ip+"&tenant="+tenant);
 		//doGet(request, response);
-					}
 
+	}//fim doPost
 
-}
+}//fim classe

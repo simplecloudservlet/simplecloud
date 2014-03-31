@@ -44,14 +44,14 @@
 			<% 
 			String token=request.getParameter("token");		
 			%>
-			<input type=text size=20 name=token value=
+			<input type=text size=40 name=token value=
 			<%= token %>
 			readonly>
 			Tenant:
 				<% 
 				String tenant=request.getParameter("tenant");		
 				%>
-				<input type=text size=20 name=tenant value=
+				<input type=text size=40 name=tenant value=
 				<%= tenant %>
 				readonly>
 			<input type="submit" name="POST" value="POST">
@@ -78,7 +78,7 @@
 				<% 
 				String hosts=request.getParameter("hosts");		
 				%>
-				<input type=text size=20 name=hosts value=
+				<input type=text size=50 name=hosts value=
 				<%= hosts %>
 				readonly>
 				<input type="submit" name="GET" value="GET">

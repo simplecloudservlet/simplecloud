@@ -16,35 +16,9 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-
-
-public class SAXParserCloud {
-
-	private String TOKEN_ID="0";
-
-	private String TENANT_ID="0";
-
-	private String HOSTS_ID="0";
+public class SAXParserServers {
 
 	private String SERVERS_ID="0";
-
-	public String getTokenID(){
-
-		return TOKEN_ID;
-
-	}//fim getTokenID
-
-	public String getTenantID(){
-
-		return TENANT_ID;
-
-	}//fim getTenantID
-
-	public String getHostsID(){
-
-		return HOSTS_ID;
-
-	}//fim geHostsID
 
 	public String getServersID(){
 
@@ -52,41 +26,15 @@ public class SAXParserCloud {
 
 	}//fim getServersID
 
-	public void setTokenID(String token){
-		TOKEN_ID=token;
-	}//fim setTokenID
-
-	public void setTenantID(String tenant){
-		TENANT_ID=tenant;
-	}//fim setTokenID
-
-	public void setHostsID(String hosts){
-		HOSTS_ID=hosts;
-	}//fim setHostsID
-
 	public void setServersID(String servers){
 		SERVERS_ID=servers;
 	}//fim setTokenID
 
 	//Apenas para testes
-	boolean ARQUIVO_HOSTS_FIXO=false;
 	boolean ARQUIVO_SERVERS_FIXO=true;
 
 	//Construtor
-	public SAXParserCloud(){
-
-
-		if(ARQUIVO_HOSTS_FIXO){
-			//Busca pela tag <host ... /> no arquivo XML
-			//
-			//Uso uma lista porque nao sei quantos hosts podem ser retornados
-			java.util.ArrayList listaHosts = processar("getHosts", "src/simplecloud/simplecloud/hosts.xml"); //
-			java.util.Iterator itr = listaHosts.iterator();
-			while(itr.hasNext()){
-				Object element = itr.next();
-				System.out.print(element + " ");			
-			}//fim while
-		}//fim if
+	public SAXParserServers(){
 
 		if(ARQUIVO_SERVERS_FIXO){
 			//Busca pela tag <host ... /> no arquivo XML
@@ -111,22 +59,19 @@ public class SAXParserCloud {
 			javax.xml.parsers.SAXParser parser = parserFactor.newSAXParser();
 			SAXHandler handler = new SAXHandler(tipo);
 			//Apenas para testes			
-			if(ARQUIVO_HOSTS_FIXO){
+
+			if(ARQUIVO_SERVERS_FIXO){
 				System.out.println("[[["+arquivo+"]]]");//Como processar o xml que estah na memoria???
 				parser.parse(new File(arquivo), handler);
-			} else 
-				if(ARQUIVO_SERVERS_FIXO){
-					System.out.println("[[["+arquivo+"]]]");//Como processar o xml que estah na memoria???
-					parser.parse(new File(arquivo), handler);
-				} else {
-					// convert String into InputStream
-					InputStream is = new ByteArrayInputStream(arquivo.getBytes());
-					parser.parse(is, handler);
-				}//fim else
+			} else {
+				// convert String into InputStream
+				InputStream is = new ByteArrayInputStream(arquivo.getBytes());
+				parser.parse(is, handler);
+			}//fim else
 
 			//Printing the list obtained from XML
 			for ( Tag doc : handler.docList){
-				if (tipo.equals("getHosts")){
+				/*if (tipo.equals("getHosts")){
 					//Armazena apenas os objetos cujo hosts sao do tipo 'compute'
 					if(doc.service.equals("compute")){
 						System.out.println(doc.host_name);
@@ -134,10 +79,11 @@ public class SAXParserCloud {
 					}//fim if
 
 				}//fim if
-				else if(tipo.equals("getServers")){
+				else 				
+				 */
+				System.out.println(handler.docList.size());
+				if(tipo.equals("getServers")){
 					System.out.println("Passei por aqui2: doc.server_id: "+doc.server_id);
-					lista.add(doc.server_id);
-
 				}//fimIfServers
 
 			}//fim for
@@ -180,59 +126,20 @@ public class SAXParserCloud {
 
 			String tipo = getTipo();
 
-			if(tipo.equals("getToken")){//tag atual. Ex.: <host...>
-				switch(qName){
-				//Cria um novo objeto token quando a tag eh encontrada
-				case "token":
-					doc = new Tag();
-					doc.id = attributes.getValue("id");
-					doc.expires = attributes.getValue("expires");
-					System.out.println(doc.id.toString());
-					setTokenID(doc.id.toString());
+			if(tipo.equals("getServers")){ //tipo
+				switch(qName){ //tag atual. Ex.: <server...>
+				case "server":
+					System.out.println("Passei por aqui");
+					doc = new Tag();//Cria um novo objeto para guardar o valor
+					doc.server_id = attributes.getValue("id");
+					doc.server_name = attributes.getValue("name");
+					System.out.println("doc.server_id: " + doc.server_id);
+					docList.add(doc);
 					break;
-				case "tenant":
-					doc = new Tag();
-					doc.id = attributes.getValue("id");
-					//doc.name = attributes.getValue("name");
-					System.out.println(doc.id.toString());
-					setTenantID(doc.id.toString());
+				default:
 					break;
-				}//fimdoSwitch
-			} else
-
-				if(tipo.equals("getHosts")){
-
-					switch(qName){ //tag atual. Ex.: <host...>
-
-					case "host":
-						doc = new Tag(); //Cria um novo objeto para guardar o valor
-						doc.host_name = attributes.getValue("host_name"); //Ex.: <host ... host_name="..." .../>
-						doc.service = attributes.getValue("service"); //Ex.: <host ... service="..." .../>
-						//System.out.println("\tHOST_NAME:\t" + doc.host_name);
-						//System.out.println("\tSERVICE:\t" + doc.service);
-						break;
-
-					default:
-						break;
-
-					}//fim do switch
-
-				}//fim if
-
-				else
-					if(tipo.equals("getServers")){ //tipo
-						switch(qName){ //tag atual. Ex.: <server...>
-						case "server":
-							System.out.println("Passei por aqui");
-							doc = new Tag();//Cria um novo objeto para guardar o valor
-							doc.server_id = attributes.getValue("id");
-							doc.server_name = attributes.getValue("name");
-							System.out.println("doc.server_id: " + doc.server_id);
-							break;
-						default:
-							break;
-						}//fimdoswitch
-					}//fimdoif
+				}//fim switch
+			}//fim if
 
 		}//fim startElement
 
@@ -268,21 +175,15 @@ public class SAXParserCloud {
 	//     tag.name
 	//     tag.expires....
 	class Tag {
-
-		String id="";
+		
 		String server_id="";
 		String server_name="";
-		String expires="";
-		String service="";
-		String host_name="";
-		String zone="";
-		String servers="";
 
 	}//fim classe interna
 
 	//Inicia a classe
 	public static void main(String args[]){
-		new SAXParserCloud();
+		new SAXParserServers();
 
 	}//finalMain
 
