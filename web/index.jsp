@@ -104,7 +104,7 @@
 				<% 
 				String servers=request.getParameter("servers");		
 				%>
-				<input type=text size=20 name=servers value=
+				<input type=text size=50 name=servers value=
 				<%= servers %>
 				readonly>
 				<input type="submit" name="GET" value="GET">

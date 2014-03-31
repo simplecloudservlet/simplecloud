@@ -51,8 +51,7 @@ public class SimpleCloudServlet extends HttpServlet {
 	@Override
 	public void doGet(HttpServletRequest request,
 			HttpServletResponse response)
-					throws IOException, ServletException
-					{
+					throws IOException, ServletException {
 		response.setContentType("text/html");
 
 		PrintWriter out = response.getWriter();
@@ -64,75 +63,42 @@ public class SimpleCloudServlet extends HttpServlet {
 		String tenant = request.getParameter("tenant");
 		String tipo = request.getParameter("tipo");
 
+		ArrayList retornoHosts = new ArrayList();
+		ArrayList retornoServers = new ArrayList();
 
-		if(tipo.equals("getHosts")){
-			
-			ArrayList retornoHosts = new ArrayList();
-			try {
+		try {
+			retornoHosts=getHosts(username,password,ip,token,tenant);
+		} catch (Exception e){
+			out.println("<h3>" + e.getMessage() + "</h3>");
+		}
 
-				//out.print(processar(username,password));
-				retornoHosts=getHosts(username,password,ip,token,tenant);
+		String urlHosts = "";
+		java.util.Iterator itr = retornoHosts.iterator();
+		while(itr.hasNext()){
+			Object element = itr.next();
+			urlHosts +=  element + ";";
+		}//fim while
 
-			} catch (Exception e){
-				out.println("<h3>" + e.getMessage() + "</h3>");
-			}        
+		try {
+			retornoServers=getServers(username,password,ip,token,tenant);
+		} catch (Exception e){
+			out.println("<h3>" + e.getMessage() + "</h3>");
+		}
 
-			String urlHosts = "";
+		String urlServers = "";
+		itr = retornoServers.iterator();
+		SAXParserServers.Tag element;
 
-			java.util.Iterator itr = retornoHosts.iterator();
-			while(itr.hasNext()){
-				Object element = itr.next();
-				urlHosts +=  element + ";";
-			}//fim while
-
-
-			response.sendRedirect("index.jsp?username="+username+"&password="+password+"&token="+token+"&ip="+ip+"&tenant="+tenant+
-					"&hosts="+urlHosts);
-
-		}//finalComparacaoHosts 
-
-		else if(tipo.equals("getServers")){
-			ArrayList retornoServers = new ArrayList();
-			try {
-
-				//out.print(processar(username,password));
-
-				retornoServers=getServers(username,password,ip,token,tenant);
-
-			} catch (Exception e){
-				out.println("<h3>" + e.getMessage() + "</h3>");
-			}        
-
-			String urlServers = "";
-
-			java.util.Iterator itr = retornoServers.iterator();
-			//SAXParserCloud obj = new SAXParserCloud();
-
-			while(itr.hasNext()){
-				Object element = itr.next();
-				urlServers +=  "element.server_name" + ";";
-				out.println("["+urlServers+"]");
-			}//fim while
-
-
-			out.println("<html>");
-			out.println("<head>");
-
-
-			out.println("</head>");
-			out.println("<body bgcolor=\"white\">");
-			out.println(username);
+		while(itr.hasNext()){
+			element = (SAXParserServers.Tag) itr.next();
+			urlServers +=  element.server_id + ";";
 			out.println("["+urlServers+"]");
-			out.println("</body>");
-			out.println("</html>");
-			/*response.sendRedirect("index.jsp?username="+username+"&password="+password+"&token="+token+"&ip="+ip+"&tenant="+tenant+
-          		"&servers="+urlServers);*/
-		}//finalComparacaoServers
+		}//fim while
 
+		response.sendRedirect("index.jsp?username="+username+"&password="+password+"&token="+token+"&ip="+ip+"&tenant="+tenant+
+				"&servers="+urlServers+"&hosts="+urlHosts);
 
-
-
-					}
+	}//fim doGet
 
 	/////////////
 	public String[] getToken(String username, String password, String ip) throws Exception{
@@ -345,7 +311,7 @@ public class SimpleCloudServlet extends HttpServlet {
 			String responseBody = httpclient.execute(httpget, responseHandler);
 
 			SAXParserServers sax = new SAXParserServers();
-			listaServers =sax.processar ("getServers",responseBody.toString());
+			listaServers=sax.processar ("getServers",responseBody.toString());			
 
 		} finally {
 			httpclient.close();

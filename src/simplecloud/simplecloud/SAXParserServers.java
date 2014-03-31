@@ -30,8 +30,8 @@ public class SAXParserServers {
 		SERVERS_ID=servers;
 	}//fim setTokenID
 
-	//Apenas para testes
-	boolean ARQUIVO_SERVERS_FIXO=true;
+	//Apenas para testes (IMPORTANTE: 'false' para exibir resultado no browser)
+	boolean ARQUIVO_SERVERS_FIXO=false;
 
 	//Construtor
 	public SAXParserServers(){
@@ -41,10 +41,10 @@ public class SAXParserServers {
 			//
 			//Uso uma lista porque nao sei quantos hosts podem ser retornados
 			java.util.ArrayList listaServers = processar("getServers", "src/simplecloud/simplecloud/servers.xml");
-			java.util.Iterator itr = listaServers.iterator();
+			java.util.Iterator itr = listaServers.iterator();			 
 			while(itr.hasNext()){
-				Object element = itr.next();
-				System.out.print(element + " - ");			
+				Tag element = (Tag) itr.next();				
+				System.out.print("Server: " + element.server_id);
 			}//fim while
 		}//fim if
 
@@ -71,20 +71,14 @@ public class SAXParserServers {
 
 			//Printing the list obtained from XML
 			for ( Tag doc : handler.docList){
-				/*if (tipo.equals("getHosts")){
-					//Armazena apenas os objetos cujo hosts sao do tipo 'compute'
-					if(doc.service.equals("compute")){
-						System.out.println(doc.host_name);
-						lista.add(doc.host_name);
-					}//fim if
 
-				}//fim if
-				else 				
-				 */
-				System.out.println(handler.docList.size());
+				/*System.out.println(handler.docList.size());
 				if(tipo.equals("getServers")){
 					System.out.println("Passei por aqui2: doc.server_id: "+doc.server_id);
 				}//fimIfServers
+				 */
+
+				lista.add(doc);
 
 			}//fim for
 		} catch (Exception e){
@@ -133,8 +127,7 @@ public class SAXParserServers {
 					doc = new Tag();//Cria um novo objeto para guardar o valor
 					doc.server_id = attributes.getValue("id");
 					doc.server_name = attributes.getValue("name");
-					System.out.println("doc.server_id: " + doc.server_id);
-					docList.add(doc);
+					System.out.println("doc.server_id: " + doc.server_id);					
 					break;
 				default:
 					break;
@@ -144,28 +137,24 @@ public class SAXParserServers {
 		}//fim startElement
 
 		//Disparado quando a tag de fim eh encontrada
+		//
+		//Nota: Eh necessario definir 'cada' tipo de qname aqui tb.
 		@Override
 		public void endElement(String uri, String localName, 
 				String qName) throws SAXException {
 
-			//String tipo = getTipo();
+			String tipo = getTipo();
 
-			docList.add(doc);
+			if(tipo.equals("getServers")){ //tipo
+				switch(qName){ //tag atual. Ex.: <server...>
+				case "server":			
+					docList.add(doc);
+					break;
+				default:
+					break;
+				}//fim endElement
+			}//fim if
 		}//fim endElement
-
-		//Trata campos dentro da 'hierarquia' da tag
-		//Ex.: <host>
-		//        <nome1>...</nome1>
-		//        <nome2>...</nome2>
-		//     </host>
-		//Nota: nao utilizamos esse metodo
-		/*@Override
-		public void characters(char[] ch, int start, int length) 
-				throws SAXException {
-			System.out.println("Passei por aqui"); 
-			//content = String.copyValueOf(ch, start, length).trim();
-		}//fim characters
-		 */
 
 	}//fim classe SaxHandler
 
@@ -175,11 +164,38 @@ public class SAXParserServers {
 	//     tag.name
 	//     tag.expires....
 	class Tag {
-		
+
 		String server_id="";
 		String server_name="";
 
 	}//fim classe interna
+
+	public boolean repetido(Tag doc, java.util.ArrayList listaVisitados){
+
+		boolean repetido=false;
+
+
+		java.util.Iterator itr = listaVisitados.iterator();
+
+		//A lista possui elementos que nao sao
+		boolean fim=false;
+
+		while(itr.hasNext() && !repetido && !fim){
+			try {
+				Tag elementoVisitado = (Tag) itr.next();
+				if (elementoVisitado.server_id == doc.server_id)
+					repetido=true;
+			} catch (Exception e){
+				//Se deu erro aqui, nao possui mais elementos na lista
+				fim=true;
+			}
+
+		}//fim while
+
+		return repetido;
+
+	}//fim repetido
+
 
 	//Inicia a classe
 	public static void main(String args[]){
