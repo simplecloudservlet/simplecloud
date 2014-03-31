@@ -1,0 +1,37 @@
+<!DOCTYPE web-app 
+    PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN" 
+    "http://java.sun.com/dtd/web-app_2_3.dtd">
+
+
+<web-app>
+
+    <display-name>Simple Cloud Servlet</display-name>
+    <description>
+      HTTP Simple Cloud Servlet
+    </description>
+
+	<servlet>
+        <servlet-name>SimpleCloudServlet</servlet-name>
+        <servlet-class>simplecloud.SimpleCloudServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>SimpleCloudServlet</servlet-name>
+        <url-pattern>/SimpleCloudServlet</url-pattern>
+    </servlet-mapping>
+    
+    <!-- Redireciona para a pagina index.jsp -->
+    <servlet>
+        <servlet-name>IndexServlet</servlet-name>
+        <servlet-class>simplecloud.IndexServlet</servlet-class>
+    </servlet>    
+    <servlet-mapping>
+    	<servlet-name>IndexServlet</servlet-name>
+    	<url-pattern>/IndexServlet</url-pattern>
+	</servlet-mapping>        
+
+</web-app>
+
+
+
+
+
