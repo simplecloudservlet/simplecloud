@@ -16,18 +16,27 @@
 		<h4>Identity Services</h4>
 		<p>
 		<form action="SimpleCloudServlet" method=POST>
-			User:
-			<% String username=request.getParameter("username"); %>
+			User*:
+			<% String username=request.getParameter("username"); 
+				if (username==null)
+					username="admin";			
+			%>
 				<input type=text size=20 name=username value=
 				<%= username %>>
 				<br/>
-			Password: 
-			<% String password=request.getParameter("password"); %>
+			Password*: 
+			<% String password=request.getParameter("password"); 
+				if (password==null)
+					password="admin";			
+			%>
 				<input type=text size=20 name=password value=
 				<%= password %>>
 				<br/>	
-			IP:
-			<% String ip=request.getParameter("ip"); %>
+			IP*:
+			<% String ip=request.getParameter("ip"); 
+				if(ip==null)
+					ip="172.16.0.3";
+			%>
 				<input type=text size=20 name=ip value=
 				<%= ip %>>
 				<br/>
