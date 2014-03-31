@@ -59,13 +59,29 @@ Verifique o funcionamento no browser: http://localhost:8080/SimpleCloud
 
 ---Git
 
-Create a new repository on the command line
+Create a new repository on the command line (Note: a previous repository
+folder named 'simplecloud' was created in github.com site first!)
 
-touch README.md
-git init
-git add README.md
-git commit -m "meu commit"
-git remote add origin https://github.com/simplecloudservlet/simplecloud.git
-git push -u origin master
+- git init
+- git add *
+- git commit -am "meu commit"
+- git remote add origin https://github.com/simplecloudservlet/simplecloud.git
+- git push -u origin master
+
+After first commit, to avoid inform username and password each time:
+
+- git config --global credential.helper cache
+- git config --global credential.helper 'cache --timeout=3600'
+
+To update changes on repository:
+- git commit -am "meu commit"
+- git push -u origin master
+
+====
+To remove git unwanted configuration in the project:
+- rm -rf .git
+
+To remove git unwanted cached config (as username and password):
+- rm -rf ~/.git*
 
 
