@@ -68,15 +68,31 @@ public class SAXParserCloud {
 		SERVERS_ID=servers;
 	}//fim setTokenID
 
+	//Apenas para testes
+	boolean ARQUIVO_HOSTS_FIXO=true;
+	boolean ARQUIVO_SERVERS_FIXO=true;
+
 	//Construtor
 	public SAXParserCloud(){
 
-		boolean arquivo_fixo=true;
-		if(arquivo_fixo){
+
+		if(ARQUIVO_HOSTS_FIXO){
 			//Busca pela tag <host ... /> no arquivo XML
 			//
 			//Uso uma lista porque nao sei quantos hosts podem ser retornados
-			java.util.ArrayList listaHosts = processar("getHosts", "src/arquivo.xml");
+			java.util.ArrayList listaHosts = processar("getHosts", "");
+			java.util.Iterator itr = listaHosts.iterator();
+			while(itr.hasNext()){
+				Object element = itr.next();
+				System.out.print(element + " ");			
+			}//fim while
+		}//fim if
+
+		if(ARQUIVO_SERVERS_FIXO){
+			//Busca pela tag <host ... /> no arquivo XML
+			//
+			//Uso uma lista porque nao sei quantos hosts podem ser retornados
+			java.util.ArrayList listaHosts = processar("getHosts", "");
 			java.util.Iterator itr = listaHosts.iterator();
 			while(itr.hasNext()){
 				Object element = itr.next();
@@ -97,16 +113,19 @@ public class SAXParserCloud {
 			SAXParserFactory parserFactor = SAXParserFactory.newInstance();
 			javax.xml.parsers.SAXParser parser = parserFactor.newSAXParser();
 			SAXHandler handler = new SAXHandler(tipo);
-			//Apenas para testar com um arquivo fixo
-			boolean arquivo_fixo=true;
-			if(arquivo_fixo){
+			//Apenas para testes			
+			if(ARQUIVO_HOSTS_FIXO){
 				System.out.println("[[["+arquivo+"]]]");//Como processar o xml que estah na memoria???
-				parser.parse(new File("src/simplecloud/simplecloud/arquivo.xml"), handler);
-			} else {
-				// convert String into InputStream
-				InputStream is = new ByteArrayInputStream(arquivo.getBytes());
-				parser.parse(is, handler);
-			}//fim else
+				parser.parse(new File("src/simplecloud/simplecloud/hosts.xml"), handler);
+			} else 
+				if(ARQUIVO_SERVERS_FIXO){
+					System.out.println("[[["+arquivo+"]]]");//Como processar o xml que estah na memoria???
+					parser.parse(new File("src/simplecloud/simplecloud/servers.xml"), handler);
+				} else {
+					// convert String into InputStream
+					InputStream is = new ByteArrayInputStream(arquivo.getBytes());
+					parser.parse(is, handler);
+				}//fim else
 
 			//Printing the list obtained from XML
 			for ( Tag doc : handler.docList){
