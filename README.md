@@ -77,6 +77,10 @@ To update changes on repository:
 - git commit -am "meu commit"
 - git push -u origin master
 
+===
+To acquire status of modifications:
+- git status
+
 ====
 To remove git unwanted configuration in the project:
 - rm -rf .git
