@@ -1,4 +1,4 @@
-
+.
 Configuração do Servlet:
 
 Assumindo a instalacao do Java JDK1.7 como segue:
