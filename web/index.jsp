@@ -110,6 +110,51 @@
 				<input type="submit" name="GET" value="GET">
 				<br/>
 		</form>
+		<form action="SimpleCloudServlet" method=GET>
+			<input type="hidden" size=20 name="tipo" value="getServersInHost">
+			<input type="hidden" size=20 name=username value=
+				<%= username %>>
+			<input type="hidden" size=20 name=password value=
+				<%= password %>>
+			<input type="hidden" size=20 name=ip value=
+				<%= ip %>>
+			<input type="hidden" size=20 name=token value=
+			<%= token %>>
+			<input type="hidden" size=20 name=tenant value=
+				<%= tenant %>>
+			
+				<br/>
+			ServersInHost:
+				<% 
+				String serversInHost=request.getParameter("serversInHost");		
+				%>
+				<input type=text size=50 name=serversInHost value=
+				<%= serversInHost %>
+				readonly>
+				<input type="submit" name="GET" value="GET">
+				<br/>
+				<br/>
+				<br/>
+				<br/>
+		<form action="SimpleCloudServlet" method=POST>
+			ServerMigrate:
+			<% String servermigrate=request.getParameter("servermigrate"); 
+					
+			%>
+				<input type=text size=20 name=servermigrate value=
+				<%= servermigrate %>>
+				<br/>
+		</form>
+		<form action="SimpleCloudServlet" method=POST>
+			ToHost:
+			<% String tohost=request.getParameter("tohost"); 
+					
+			%>
+				<input type=text size=20 name=tohost value=
+				<%= tohost %>>
+				<input type="submit" name="MIGRATE" value="MIGRATE">
+				<br/>
+		</form>
 		<textarea rows="4" cols="100"></textarea>
 		<br>
 		<br>
