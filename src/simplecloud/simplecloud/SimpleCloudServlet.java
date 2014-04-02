@@ -192,13 +192,13 @@ public class SimpleCloudServlet extends HttpServlet {
 
 		return result;
 	}
-	public String Migrate(String username, String password, String ip, String serversmigrate, String tohost, String token, String tenant) throws Exception{
+	public String migrate(String username, String password, String ip, String serversmigrate, String tohost, String token, String tenant) throws Exception{
 
-		String[] result=new String[4];
-		for(int i=0; i<result.length; i++){
-			result[i]="";
-		}
-
+		String retorno = "0";
+		/*if (args.length != 1)  {
+		System.out.println("File path not given");
+		System.exit(1);
+	}*/
 		CloseableHttpClient httpclient = HttpClients.createDefault();
 		try {
 
@@ -206,38 +206,33 @@ public class SimpleCloudServlet extends HttpServlet {
 			//           3a9c94ec-d98b-40cb-b185-f3e109c3732d --> eh o ID da VM ativa (recebe aqui o nome de 'server') --> adquiro com /tenant-id/servers (ou # nova list)
 			//			 fb523c47-de76-40b8-aac9-1ffcc8d236d5 --> eh o ID da imagem da VM --> --> adquiro com /tenant-id/images (ou # nova image-list)
 
-			//String tenantID="698be4ebdfd24092b80be1f6b78ff57d";
-			//String tenantID="ece11538e44444ea9b9b98f7ce6e2d2d";
-			//String IP_token = "+ip+";
-			//String IP = "172.16.0.3:8774";
-			//String token = "fbabb4c205c24fd3b2debf2c905d4604";
-			//String serverVMID = "c2e4c7ca-7c58-4cf4-9d6e-d0897f9a8d68";
+			//URL url = new URL("http://172.16.0.2:5000/v2.0/tokens");
 			String porta="8774";
-
 			URL url = new URL("http://"+ip+":"+porta+"/v2/"+tenant+"/servers/"+serversmigrate+"/action");
-			//URL url = new URL("http://172.16.0.3:8774/v2/"+tenantID+"/os-migrations");
-			//URL url = new URL("http://172.16.0.3:8774/v2/36d2a86097f54ca3a5baa1d5bac9431a/servers/13b5186d-883d-46c7-8f73-9d91f2ca4eae/action");
-
-			//Para migrate, o escalonador do openstack escolhe o host de destino
-			//URL url = new URL("http://"+IP+"/v2/"+tenantID+"/servers/"+serverVMID+"/action");
-
+			//URL url = new URL("http://172.16.0.2:8774/v2/b8d208064f9c47ddaa42ac5cf1da79e4/servers");
 
 			HttpPost httppost = new HttpPost(url.toURI());
 
-
-			InputStreamEntity reqEntity=null;
-
-			String entrada = "{\"auth\": {\"tenantName\": \""+username+"\",\"passwordCredentials\": {\"username\": \""+username+"\", \"password\": \""+password+"\"}}}"; 
+			//File file = new File(args[0]);
+			//String entrada = "{\"auth\": {\"tenantName\": \"admin\", \"passwordCredentials\": {\"username\": \"admin\", \"password\": \"admin\"}}}";
+			String entrada = "{\"os-migrateLive\": {\"host\": \""+tohost+"\",\"block_migration\": true,\"disk_over_commit\": false}}";
 			InputStream saida = new ByteArrayInputStream(entrada.getBytes());
-			reqEntity = new InputStreamEntity(
-					saida, -1, ContentType.APPLICATION_JSON);			
 
+			//Para ler o conteudo do arquivo
+			//InputStreamEntity reqEntity = new InputStreamEntity(
+			//new FileInputStream(file), -1, ContentType.APPLICATION_JSON);
+			InputStreamEntity reqEntity = new InputStreamEntity(
+					saida, -1, ContentType.APPLICATION_JSON);
 			reqEntity.setChunked(true);
 			httppost.setEntity(reqEntity);			
 
 			//Para receber a resposta em XML
-			//httppost.addHeader("Accept", "application/json");
 			httppost.addHeader("Accept", "application/xml");
+
+
+			httppost.setHeader("X-Auth-Token",token); 
+			httppost.addHeader("Accept", "application/xml");
+
 
 			System.out.println("Executing request: " + httppost.getRequestLine());
 
@@ -258,31 +253,17 @@ public class SimpleCloudServlet extends HttpServlet {
 
 			};
 			String responseBody = httpclient.execute(httppost, responseHandler);
-			//System.out.println("----------------------------------------");
-			//System.out.println(responseBody);                        
+			System.out.println("----------------------------------------");
+			System.out.println(responseBody);  
+			retorno = responseBody;
 			//-----------------
-
-			/*try {
-				BufferedWriter out = new BufferedWriter(new FileWriter("/usr/local/src/workspace/SimpleCloudServletv3/arquivo.xml",false));			
-				out.write(responseBody.toString());
-				out.close();
-			} catch (Exception e){
-				e.printStackTrace();
-			}*/			
-
-			SAXParserToken sax = new SAXParserToken();
-			sax.processar("getToken",responseBody.toString());
-			result[0] = sax.getTokenID();
-			result[1] = sax.getTenantID();
-
-
 
 		} finally {
 			httpclient.close();
 		}
+		return retorno;
+	}//fimMigrate
 
-		return result;
-	}
 	public java.util.ArrayList getHosts(String username, String password, String ip, String token, String tenant) throws Exception{
 
 		java.util.ArrayList listaHosts = new java.util.ArrayList();
@@ -426,28 +407,50 @@ public class SimpleCloudServlet extends HttpServlet {
 		String ip = request.getParameter("ip");
 		String serversmigrate = request.getParameter("serversmigrate");
 		String tohost = request.getParameter("tohost");
+		String tokenM = request.getParameter("token");
+		String tenantM = request.getParameter("tenant");
+		String tipo = request.getParameter("tipo");
 
 		String []retorno = new String[4];
 		for(int i=0; i<retorno.length; i++){
 			retorno[i]="";
 		}    
 
-		try {
+		out.println("<h3>" + tipo + "</h3>");
 
-			//out.print(processar(username,password));
-			retorno=getToken(username,password,ip);
+		if(tipo.equals("getToken")){
+			try {
 
-		} catch (Exception e){
-			out.println("<h3>" + e.getMessage() + "</h3>");
-		} 
+				//out.print(processar(username,password));
+				retorno=getToken(username,password,ip);
+
+			} catch (Exception e){
+				out.println("<h3>" + e.getMessage() + "</h3>");
+			} 
+			
+
+
+			
+		}//fimif
+
+		String retornoMigrate = "1";
+		if(tipo.equals("migrate")){
+			try {
+				retornoMigrate=migrate(username, password, ip, serversmigrate, tohost, tokenM, tenantM);
 		
-		
+			} catch (Exception e){
+				aretornoMigrate = "2";
+				out.println("<h3>" + e.getMessage() + "</h3>");
+			}
 
+			
+		}//fimif
+		
 		String token=retorno[0];
 		String tenant=retorno[1];
 
-
-		response.sendRedirect("index.jsp?username="+username+"&password="+password+"&token="+token+"&ip="+ip+"&tenant="+tenant);
+		response.sendRedirect("index.jsp?username="+username+"&password="+password+"&token="+token+"&ip="+ip+"&tenant="+tenant+"&status="+retornoMigrate);
+		
 		//doGet(request, response);
 
 	}//fim doPost

@@ -16,6 +16,7 @@
 		<h4>Identity Services</h4>
 		<p>
 		<form action="SimpleCloudServlet" method=POST>
+		<input type="hidden" size=20 name=tipo value=getToken>	
 			User*:
 			<% String username=request.getParameter("username"); 
 				if (username==null)
@@ -136,26 +137,51 @@
 				<br/>
 				<br/>
 				<br/>
-		<form action="SimpleCloudServlet" method=POST>
+			</form>
+			
+	<form action="SimpleCloudServlet" method=POST>
+		<input type="hidden" size=20 name=tipo value="migrate">
+			<input type="hidden" size=20 name=username value=
+				<%= username %>>
+			<input type="hidden" size=20 name=password value=
+				<%= password %>>
+			<input type="hidden" size=20 name=ip value=
+				<%= ip %>>
+			<input type="hidden" size=20 name=token value=
+			<%= token %>>
+			<input type="hidden" size=20 name=tenant value=
+				<%= tenant %>>
+			<input type="hidden" size=20 name=servers value=
+				<%= servers %>>
+			<input type="hidden" size=20 name=hosts value=
+				<%= hosts %>>
 			ServerMigrate:
-			<% String servermigrate=request.getParameter("servermigrate"); 
+			<% String servermigrateretorno=request.getParameter("servermigrateretorno"); 
 					
 			%>
-				<input type=text size=20 name=servermigrate value=
-				<%= servermigrate %>>
+				<input type=text size=20 name=servermigrateretorno value=
+				<%= servermigrateretorno %>>
+				<input type=text size=20 name=servermigrate> 
+				
 				<br/>
-		</form>
-		<form action="SimpleCloudServlet" method=POST>
 			ToHost:
-			<% String tohost=request.getParameter("tohost"); 
-					
+			<% String tohost=request.getParameter("tohost"); 			
 			%>
 				<input type=text size=20 name=tohost value=
 				<%= tohost %>>
-				<input type="submit" name="MIGRATE" value="MIGRATE">
+				<input type="submit" name="POST" value="POST">
 				<br/>
 		</form>
-		<textarea rows="4" cols="100"></textarea>
+
+<textarea rows="4" cols="100">
+		<% String retornoMigrate=request.getParameter("retornoMigrate"); 			
+			%>
+		<%= retornoMigrate %>
+		</textarea>	
+		
+		
+		
+		
 		<br>
 		<br>
 		<h4>Compute Services</h4>
