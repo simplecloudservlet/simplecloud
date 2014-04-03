@@ -125,14 +125,6 @@
 				<%= tenant %>>
 			
 				<br/>
-			ServersInHost:
-				<% 
-				String serversInHost=request.getParameter("serversInHost");		
-				%>
-				<input type=text size=50 name=serversInHost value=
-				<%= serversInHost %>
-				readonly>
-				<input type="submit" name="GET" value="GET">
 				<br/>
 				<br/>
 				<br/>
@@ -140,7 +132,7 @@
 			</form>
 			
 	<form action="SimpleCloudServlet" method=POST>
-		<input type="hidden" size=20 name=tipo value="migrate">
+		<input type="hidden" size=20 name=tipo value=migrate>
 			<input type="hidden" size=20 name=username value=
 				<%= username %>>
 			<input type="hidden" size=20 name=password value=
@@ -156,12 +148,10 @@
 			<input type="hidden" size=20 name=hosts value=
 				<%= hosts %>>
 			ServerMigrate:
-			<% String servermigrateretorno=request.getParameter("servermigrateretorno"); 
-					
+			<% String serversmigrate=request.getParameter("serversmigrate"); 			
 			%>
-				<input type=text size=20 name=servermigrateretorno value=
-				<%= servermigrateretorno %>>
-				<input type=text size=20 name=servermigrate> 
+				<input type=text size=20 name=serversmigrate value=
+				<%= serversmigrate %>>
 				
 				<br/>
 			ToHost:

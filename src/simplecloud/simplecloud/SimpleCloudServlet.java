@@ -439,7 +439,7 @@ public class SimpleCloudServlet extends HttpServlet {
 				retornoMigrate=migrate(username, password, ip, serversmigrate, tohost, tokenM, tenantM);
 		
 			} catch (Exception e){
-				aretornoMigrate = "2";
+				retornoMigrate = "2";
 				out.println("<h3>" + e.getMessage() + "</h3>");
 			}
 
