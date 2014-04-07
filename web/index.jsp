@@ -48,7 +48,7 @@
 			<input type=text size=40 name=token value=
 			<%= token %>
 			readonly>
-			Tenant:
+			TenantID:
 				<% 
 				String tenant=request.getParameter("tenant");		
 				%>
@@ -111,33 +111,7 @@
 				<input type="submit" name="GET" value="GET">
 				<br/>
 		</form>
-		<form action="SimpleCloudServlet" method=GET>
-			<input type="hidden" size=20 name="tipo" value="getServersInHost">
-			<input type="hidden" size=20 name=username value=
-				<%= username %>>
-			<input type="hidden" size=20 name=password value=
-				<%= password %>>
-			<input type="hidden" size=20 name=ip value=
-				<%= ip %>>
-			<input type="hidden" size=20 name=token value=
-			<%= token %>>
-			<input type="hidden" size=20 name=tenant value=
-				<%= tenant %>>
-			
-				<br/>
-			ServersInHost:
-				<% 
-				String serversInHost=request.getParameter("serversInHost");		
-				%>
-				<input type=text size=50 name=serversInHost value=
-				<%= serversInHost %>
-				readonly>
-				<input type="submit" name="GET" value="GET">
-				<br/>
-				<br/>
-				<br/>
-				<br/>
-			</form>
+		
 			
 	<form action="SimpleCloudServlet" method=POST>
 		<input type="hidden" size=20 name=tipo value="migrate">
@@ -155,36 +129,52 @@
 				<%= servers %>>
 			<input type="hidden" size=20 name=hosts value=
 				<%= hosts %>>
-			ServerMigrate:
-			<% String servermigrateretorno=request.getParameter("servermigrateretorno"); 
-					
+			<% String serverMigrate=request.getParameter("serverMigrate"); 			
 			%>
-				<input type=text size=20 name=servermigrateretorno value=
-				<%= servermigrateretorno %>>
-				<input type=text size=20 name=servermigrate> 
-				
-				<br/>
-			ToHost:
-			<% String tohost=request.getParameter("tohost"); 			
+			ServerMigrate*:
+			<input type=text size=20 name=serverMigrate value=
+				<%= serverMigrate %>>				
+			<br/>
+			<% String toHost=request.getParameter("toHost"); 			
 			%>
-				<input type=text size=20 name=tohost value=
-				<%= tohost %>>
-				<input type="submit" name="POST" value="POST">
-				<br/>
+			ToHost*:
+			<input type=text size=20 name=toHost value=
+				<%= toHost %>>
+			
+			<input type="submit" name="POST" value="POST">
+			<br/>
 		</form>
 
-<textarea rows="4" cols="100">
-		<% String retornoMigrate=request.getParameter("retornoMigrate"); 			
+		<% String retornoMigrate=request.getParameter("status"); 			
+		%>
+		<textarea rows="4" cols="100"><%= retornoMigrate %></textarea>	
+		
+		
+		<br>
+		<br>
+		<h4>Hosts Status</h4>
+		<form action="SimpleCloudServlet" method=GET>		
+			<input type="hidden" size=20 name=tipo value="hostStatus">
+			<input type="hidden" size=20 name=username value=
+				<%= username %>>
+			<input type="hidden" size=20 name=password value=
+				<%= password %>>
+			<input type="hidden" size=20 name=ip value=
+				<%= ip %>>
+			<input type="hidden" size=20 name=token value=
+				<%= token %>>
+			<input type="hidden" size=20 name=tenant value=
+				<%= tenant %>>		
+			Host Query*:
+			<% String hostQuery=request.getParameter("hostQuery"); 			
 			%>
-		<%= retornoMigrate %>
-		</textarea>	
-		
-		
-		
-		
-		<br>
-		<br>
-		<h4>Compute Services</h4>
+			<input type=text size=20 name=hostQuery value=
+				<%= hostQuery %>>		
+			<input type="submit" name="GET" value="GET">		
+		</form>
+		<% String hostStatus=request.getParameter("hostStatus"); 			
+		%>
+		<textarea rows="4" cols="100"><%= hostStatus %></textarea>	
 		<p>
 		...
 		<p><a href="SimpleCloudServlet?dataname=foo&amp;datavalue=bar" >Example of internal link</a>

@@ -56,49 +56,268 @@ public class SimpleCloudServlet extends HttpServlet {
 
 		PrintWriter out = response.getWriter();
 
-		String username = request.getParameter("username");
-		String password = request.getParameter("password");
-		String ip = request.getParameter("ip");
-		String token = request.getParameter("token");
-		String tenant = request.getParameter("tenant");
 		String tipo = request.getParameter("tipo");
 
-		ArrayList retornoHosts = new ArrayList();
-		ArrayList retornoServers = new ArrayList();
+		if(tipo.equals("hostStatus")){
 
-		try {
-			retornoHosts=getHosts(username,password,ip,token,tenant);
-		} catch (Exception e){
-			out.println("<h3>" + e.getMessage() + "</h3>");
-		}
+			out.println("<h3>" + "Passei por aqui" + "</h3>");
 
-		String urlHosts = "";
-		java.util.Iterator itr = retornoHosts.iterator();
-		while(itr.hasNext()){
-			Object element = itr.next();
-			urlHosts +=  element + ";";
-		}//fim while
+			String []retorno = new String[4];
+			for(int i=0; i<retorno.length; i++){
+				retorno[i]="";
+			} 
 
-		try {
-			retornoServers=getServers(username,password,ip,token,tenant);
-		} catch (Exception e){
-			out.println("<h3>" + e.getMessage() + "</h3>");
-		}
+			String username = request.getParameter("username");
+			String password = request.getParameter("password");
 
-		String urlServers = "";
-		itr = retornoServers.iterator();
-		SAXParserServers.Tag element;
+			String ip = request.getParameter("ip");			
+			String hostQuery = request.getParameter("hostQuery");
+			String token = request.getParameter("token");
+			String tenantID = request.getParameter("tenant");
 
-		while(itr.hasNext()){
-			element = (SAXParserServers.Tag) itr.next();
-			urlServers +=  element.server_id + ";";
-			out.println("["+urlServers+"]");
-		}//fim while
+			String retornoHostStatus="0";
 
-		response.sendRedirect("index.jsp?username="+username+"&password="+password+"&token="+token+"&ip="+ip+"&tenant="+tenant+
-				"&servers="+urlServers+"&hosts="+urlHosts);
+			try {
+				retorno=hostStatus(ip, hostQuery, token, tenantID);				
+				out.println("<h3>" + 
+						"[Retorno[0]:"+retorno[0]+"]" +
+						"[Retorno[1]:"+retorno[1]+"]" +
+						"[Retorno[2]:"+retorno[2]+"]" +
+						"[Retorno[3]:"+retorno[3]+"]" +
+						"</h3>");
+				retornoHostStatus=
+						"\n\nMemory Total: [" + retorno[0] + "] "+
+								"\n\nCPU Total: [" + retorno[1] + "] "+
+								"\n\nMemory used now: [" +retorno[2] + "] "+
+								"\n\nCPU used now: [" + retorno[3] + "]";
+
+			} catch (Exception e){
+				//retornoHostStatus = "2";
+				out.println("<h3>" + "["+hostQuery+"]"+"[Retorno[0]:"+retorno[0]+"]"+ 
+						"\n" + e.getMessage() + "</h3>");
+			}
+			//Retorno soh do hostStatus
+			response.sendRedirect("index.jsp?username="+username+"&password="+password+"&token="+token+"&ip="+ip+"&tenant="+tenantID+
+					"&hostQuery="+hostQuery+"&hostStatus="+retornoHostStatus);
+
+		} else {
+
+			String username = request.getParameter("username");
+			String password = request.getParameter("password");
+			String ip = request.getParameter("ip");
+			String token = request.getParameter("token");
+			String tenantID = request.getParameter("tenant");
+
+			ArrayList retornoHosts = new ArrayList();
+			ArrayList retornoServers = new ArrayList();
+
+			try {
+				retornoHosts=getHosts(username,password,ip,token,tenantID);
+			} catch (Exception e){
+				out.println("<h3>" + e.getMessage() + "</h3>");
+			}
+
+			String urlHosts = "";
+			java.util.Iterator itr = retornoHosts.iterator();
+			while(itr.hasNext()){
+				Object element = itr.next();
+				urlHosts +=  element + ";";
+			}//fim while
+
+			try {
+				retornoServers=getServers(username,password,ip,token,tenantID);
+
+			} catch (Exception e){
+				out.println("<h3>" + e.getMessage() + "</h3>");
+			}
+
+			String urlServers = "";
+			itr = retornoServers.iterator();
+			SAXParserServers.Tag element;
+
+			String []retornoDetails = new String[4];
+			for(int i=0; i<retornoDetails.length; i++)
+				retornoDetails[i]="";
+			
+			while(itr.hasNext()){
+				element = (SAXParserServers.Tag) itr.next();
+
+				try{
+					//Para cada server(VM) adquire o host no qual ele foi instanciado
+					retornoDetails=serverDetails(ip,element.server_id,token,tenantID);
+
+					urlServers +=  element.server_id + "("+retornoDetails[0]+");";
+					out.println("["+urlServers+"]");
+				}
+				catch (Exception e){
+					out.println("<h3>" + e.getMessage() + "</h3>");
+				}
+			}//fim while
+
+
+			//Todos os outros retornos
+			response.sendRedirect("index.jsp?username="+username+"&password="+password+"&token="+token+"&ip="+ip+"&tenant="+tenantID+
+					"&servers="+urlServers+"&hosts="+urlHosts);
+
+		}//fim else
 
 	}//fim doGet
+
+	public String[] serverDetails (String ip, String serverQuery, String token, String tenantID) throws Exception{
+
+		String[] result=new String[4];
+		for(int i=0; i<result.length; i++){
+			result[i]="";
+		}
+
+		CloseableHttpClient httpclient = HttpClients.createDefault();
+		try {
+
+			String porta="8774";
+
+			//token="f0193900c78d45fa8fb46c8a3a02fd3e";
+			//Adquire informacoes do host fisico
+			URL url = new URL("http://"+ip+":"+porta+"/v2/"+tenantID+"/servers/"+serverQuery);
+
+			//URL url = new URL("http://172.16.0.3:8774/v2/fbc26bace53e4dd7928f06c90608c416/os-hosts/node-3.domain.tld");
+			HttpGet httpget = new HttpGet(url.toURI());            
+			httpget.setHeader("X-Auth-Token",token);  
+			httpget.addHeader("Accept", "application/xml");
+
+			System.out.println("Executing request: " + httpget.getRequestLine());
+
+			//------------
+			// Create a custom response handler
+			ResponseHandler<String> responseHandler = new ResponseHandler<String>() {
+
+				public String handleResponse(
+						final HttpResponse response) throws ClientProtocolException, IOException {
+					int status = response.getStatusLine().getStatusCode();
+					if (status >= 200 && status < 300) {
+						HttpEntity entity = response.getEntity();
+						return entity != null ? EntityUtils.toString(entity) : null;
+					} else {
+						throw new ClientProtocolException("Unexpected response status: " + status);
+					}
+				}
+
+			};
+
+			String responseBody = httpclient.execute(httpget, responseHandler);
+
+			//result[0]=responseBody.toString();
+
+			SAXParserServerDetails sax = new SAXParserServerDetails();
+			java.util.ArrayList listaServerDetails = sax.processar("getServerDetails",responseBody.toString());
+
+			/*//A linha de baixo funciona para um arquivo fixo
+			SAXParserHostStatus sax = new SAXParserHostStatus();
+			java.util.ArrayList listaHostStatus = sax.processar("getHostStatus","/usr/local/src/workspace/SimpleCloudServletv7/src/simplecloud/simplecloud/hostStatus.xml");
+			 */
+			java.util.Iterator itr = listaServerDetails.iterator();
+			int indice=0;
+			while(itr.hasNext()){
+				Object element = itr.next();
+				if (indice==0){
+					//Host no qual a VM estah instanciada
+					result[indice]=element.toString();
+					indice++;
+				}//fim if
+			}//fim while
+
+		} finally {
+			httpclient.close();
+		}
+		return result;
+
+	}//fim serverDetails
+
+	public String[] hostStatus (String ip, String hostQuery, String token, String tenantID) throws Exception{
+
+		String[] result=new String[4];
+		for(int i=0; i<result.length; i++){
+			result[i]="";
+		}
+
+		CloseableHttpClient httpclient = HttpClients.createDefault();
+		try {
+
+			String porta="8774";
+
+			//token="f0193900c78d45fa8fb46c8a3a02fd3e";
+			//Adquire informacoes do host fisico
+			URL url = new URL("http://"+ip+":"+porta+"/v2/"+tenantID+"/os-hosts/"+hostQuery);
+
+			//URL url = new URL("http://172.16.0.3:8774/v2/fbc26bace53e4dd7928f06c90608c416/os-hosts/node-3.domain.tld");
+			HttpGet httpget = new HttpGet(url.toURI());            
+			httpget.setHeader("X-Auth-Token",token);  
+			httpget.addHeader("Accept", "application/xml");
+
+			System.out.println("Executing request: " + httpget.getRequestLine());
+
+			//------------
+			// Create a custom response handler
+			ResponseHandler<String> responseHandler = new ResponseHandler<String>() {
+
+				public String handleResponse(
+						final HttpResponse response) throws ClientProtocolException, IOException {
+					int status = response.getStatusLine().getStatusCode();
+					if (status >= 200 && status < 300) {
+						HttpEntity entity = response.getEntity();
+						return entity != null ? EntityUtils.toString(entity) : null;
+					} else {
+						throw new ClientProtocolException("Unexpected response status: " + status);
+					}
+				}
+
+			};
+
+			String responseBody = httpclient.execute(httpget, responseHandler);
+
+			//result[0]=responseBody.toString();
+
+			SAXParserHostStatus sax = new SAXParserHostStatus();
+			java.util.ArrayList listaHostStatus = sax.processar("getHostStatus",responseBody.toString());
+
+			/*//A linha de baixo funciona para um arquivo fixo
+			SAXParserHostStatus sax = new SAXParserHostStatus();
+			java.util.ArrayList listaHostStatus = sax.processar("getHostStatus","/usr/local/src/workspace/SimpleCloudServletv7/src/simplecloud/simplecloud/hostStatus.xml");
+			 */
+			java.util.Iterator itr = listaHostStatus.iterator();
+			int indice=0;
+			while(itr.hasNext()){
+				Object element = itr.next();
+				if (indice==0){
+					//System.out.print("\nMemoria total:" + element);
+					result[indice]=element.toString();
+					indice++;
+				}
+				else
+					if (indice==1){
+						//System.out.print("\nCPU total:" + element);
+						result[indice]=element.toString();
+						indice++;
+					}
+					else
+						if (indice==2){
+							//System.out.print("\nMemoria utilizada:" + element);
+							result[indice]=element.toString();
+							indice++;
+						}
+						else
+							if (indice==3){
+								//System.out.print("\nCPU utilizada:" + element);
+								result[indice]=element.toString();
+								indice=0;
+							}//fim if
+			}//fim while
+
+		} finally {
+			httpclient.close();
+		}
+		return result;
+
+	}//fim hostStatus
 
 	/////////////
 	public String[] getToken(String username, String password, String ip) throws Exception{
@@ -192,7 +411,8 @@ public class SimpleCloudServlet extends HttpServlet {
 
 		return result;
 	}
-	public String migrate(String username, String password, String ip, String serversmigrate, String tohost, String token, String tenant) throws Exception{
+
+	public String migrate(String username, String password, String ip, String serverMigrate, String toHost, String token, String tenant) throws Exception{
 
 		String retorno = "0";
 		/*if (args.length != 1)  {
@@ -208,14 +428,14 @@ public class SimpleCloudServlet extends HttpServlet {
 
 			//URL url = new URL("http://172.16.0.2:5000/v2.0/tokens");
 			String porta="8774";
-			URL url = new URL("http://"+ip+":"+porta+"/v2/"+tenant+"/servers/"+serversmigrate+"/action");
+			URL url = new URL("http://"+ip+":"+porta+"/v2/"+tenant+"/servers/"+serverMigrate+"/action");
 			//URL url = new URL("http://172.16.0.2:8774/v2/b8d208064f9c47ddaa42ac5cf1da79e4/servers");
 
 			HttpPost httppost = new HttpPost(url.toURI());
 
 			//File file = new File(args[0]);
 			//String entrada = "{\"auth\": {\"tenantName\": \"admin\", \"passwordCredentials\": {\"username\": \"admin\", \"password\": \"admin\"}}}";
-			String entrada = "{\"os-migrateLive\": {\"host\": \""+tohost+"\",\"block_migration\": true,\"disk_over_commit\": false}}";
+			String entrada = "{\"os-migrateLive\": {\"host\": \""+toHost+"\",\"block_migration\": true,\"disk_over_commit\": false}}";
 			InputStream saida = new ByteArrayInputStream(entrada.getBytes());
 
 			//Para ler o conteudo do arquivo
@@ -229,10 +449,7 @@ public class SimpleCloudServlet extends HttpServlet {
 			//Para receber a resposta em XML
 			httppost.addHeader("Accept", "application/xml");
 
-
-			httppost.setHeader("X-Auth-Token",token); 
-			httppost.addHeader("Accept", "application/xml");
-
+			httppost.setHeader("X-Auth-Token",token); 			
 
 			System.out.println("Executing request: " + httppost.getRequestLine());
 
@@ -253,8 +470,8 @@ public class SimpleCloudServlet extends HttpServlet {
 
 			};
 			String responseBody = httpclient.execute(httppost, responseHandler);
-			System.out.println("----------------------------------------");
-			System.out.println(responseBody);  
+			//System.out.println("----------------------------------------");
+			//System.out.println(responseBody);  
 			retorno = responseBody;
 			//-----------------
 
@@ -263,6 +480,8 @@ public class SimpleCloudServlet extends HttpServlet {
 		}
 		return retorno;
 	}//fimMigrate
+
+
 
 	public java.util.ArrayList getHosts(String username, String password, String ip, String token, String tenant) throws Exception{
 
@@ -405,52 +624,55 @@ public class SimpleCloudServlet extends HttpServlet {
 		String username = request.getParameter("username");
 		String password = request.getParameter("password");
 		String ip = request.getParameter("ip");
-		String serversmigrate = request.getParameter("serversmigrate");
-		String tohost = request.getParameter("tohost");
-		String tokenM = request.getParameter("token");
-		String tenantM = request.getParameter("tenant");
+		String serverMigrate = request.getParameter("serverMigrate");
+		String toHost = request.getParameter("toHost");
+		String token = request.getParameter("token");
+		String tenantID = request.getParameter("tenant");
 		String tipo = request.getParameter("tipo");
 
 		String []retorno = new String[4];
 		for(int i=0; i<retorno.length; i++){
 			retorno[i]="";
-		}    
+		}//fim for    
 
 		out.println("<h3>" + tipo + "</h3>");
 
+		String tokenRetorno="";
+		String tenantRetorno="";
+		
 		if(tipo.equals("getToken")){
 			try {
 
 				//out.print(processar(username,password));
 				retorno=getToken(username,password,ip);
 
+				tokenRetorno=retorno[0];
+				tenantRetorno=retorno[1];
+				
 			} catch (Exception e){
 				out.println("<h3>" + e.getMessage() + "</h3>");
 			} 
-			
 
-
-			
 		}//fimif
 
 		String retornoMigrate = "1";
 		if(tipo.equals("migrate")){
 			try {
-				retornoMigrate=migrate(username, password, ip, serversmigrate, tohost, tokenM, tenantM);
-		
+				retornoMigrate=migrate(username, password, ip, serverMigrate, toHost, token, tenantID);
+				if(retornoMigrate.equals(""))
+					retornoMigrate="Start migrating of Server: [" + serverMigrate + "] -> Host: [" + toHost + "]";
 			} catch (Exception e){
-				aretornoMigrate = "2";
+				retornoMigrate = "2";
 				out.println("<h3>" + e.getMessage() + "</h3>");
 			}
 
+			tokenRetorno=token;
+			tenantRetorno=tenantID;
 			
 		}//fimif
-		
-		String token=retorno[0];
-		String tenant=retorno[1];
 
-		response.sendRedirect("index.jsp?username="+username+"&password="+password+"&token="+token+"&ip="+ip+"&tenant="+tenant+"&status="+retornoMigrate);
-		
+		response.sendRedirect("index.jsp?username="+username+"&password="+password+"&token="+tokenRetorno+"&ip="+ip+"&tenant="+tenantRetorno+"&status="+retornoMigrate+"&serverMigrate="+serverMigrate+"&toHost="+toHost);
+
 		//doGet(request, response);
 
 	}//fim doPost
